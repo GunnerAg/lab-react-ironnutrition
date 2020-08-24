@@ -1,7 +1,6 @@
 import React from 'react';
 import foods from './foods.json';
 import FoodBox from './components/FoodBox';
-import MenuDay from './components/MenuDay';
 import AddFood from './components/AddFood';
 import Searchbar from './components/Searchbar';
 import './App.css';
@@ -16,8 +15,8 @@ class App extends React.Component{
     this.state ={
         foods: foods,
         filteredFood: foods,
-        condition:false,
-        todayFood:[]
+        showForm:false,
+        todaysFood: {}
     }
 }
 
@@ -27,7 +26,8 @@ class App extends React.Component{
    let newFood = event.currentTarget.food.value
    let newCalories = event.currentTarget.calories.value
    let newImage = event.currentTarget.urlImg.value
-   let newFoods =[{name:newFood,calories:newCalories,image:newImage},...this.state.foods]
+   let newQuantity = 0
+   let newFoods =[{name:newFood,calories:newCalories,image:newImage,quantity:newQuantity},...this.state.foods]
    this.setState({
      foods:newFoods,
      filteredFood:newFoods
@@ -36,7 +36,7 @@ class App extends React.Component{
 
  };
  hideOrShow=()=>{
-   this.setState({condition:!this.state.condition})
+   this.setState({showForm:!this.state.showForm})
  };
 
  handleSearch=(event)=>{
@@ -51,39 +51,73 @@ class App extends React.Component{
 
  };
 
- handleAdding=(a, b, c)=>{
-   console.log(a, b, c)
+ handleAdd = (ref, id) => {
+  let quantity = ref.current.value
+  let cloneArr = JSON.parse(JSON.stringify(this.state.filteredFood))
+  cloneArr[id].quantity = Number(quantity)
+  const clonedTodaysFood = JSON.parse(JSON.stringify(this.state.todaysFood));
+  let itemName = cloneArr[id].name
+  if (itemName in clonedTodaysFood){
+    clonedTodaysFood[itemName].quantity += Number(quantity)
+  }
+  else {
+    clonedTodaysFood[itemName]  = cloneArr[id]
+  }
+  console.log(clonedTodaysFood)
   this.setState({
-      todayFood: [a,b,c]
+    filteredFood: cloneArr,
+    todaysFood: clonedTodaysFood
   })
 }
 
 
 
   render (){
-    return (
-      <div>
 
-        {this.state.todayFood.map((values,i)=>{
-          return <MenuDay
-          key={'x'+i}
-          values={values}
-          />
-        })
-        }
-      
-        <Searchbar onSearch={this.handleSearch}/>
-        {this.state.condition ? <AddFood onAdd={this.handleAddFood} /> :<ButtonAddForm hideOrShow={this.hideOrShow}/>}
-        {this.state.filteredFood.map((food,i)=>{
-          return <FoodBox 
-          key={i}
-          food={food}
-          trigger={this.handleAdding}
-          />
-        })
-        }
-      
+    let totalCalories =Object.keys(this.state.todaysFood).reduce((acc,foodName)=>{
+      let item = this.state.todaysFood[foodName]
+      return acc + (item.calories*item.quantity)
+    },0)
+
+
+    return (
+      <div class="columns">
+        <div class="column">
+        <div>
+           
+
+            <Searchbar onSearch={this.handleSearch}/>
+            {this.state.showForm ? <AddFood onAdd={this.handleAddFood} /> :<ButtonAddForm hideOrShow={this.hideOrShow}/>}
+            {this.state.filteredFood.map((food,i)=>{
+              return <FoodBox 
+              id={i}
+              food={food}
+              onAdd={this.handleAdding}
+              />
+            })
+            }
+
+            </div>
+                    </div>
+        <div class="column">
+          <h2>Today's food</h2>
+          <ul>
+            {
+              Object.keys(this.state.todaysFood).map((foodName)=>{
+                let item= this.state.todaysFood[foodName]
+                return (
+                  <li>{item.quantity}{item.name}={item.quantity*item.calories} cal</li>
+                )
+              })
+
+            }
+          </ul>
+          <h5>Total:{
+            Object.keys(this.state.todaysFood)
+          } cal</h5>
+        </div>
       </div>
+
     );
   }
 }

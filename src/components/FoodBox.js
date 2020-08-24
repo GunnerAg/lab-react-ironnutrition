@@ -1,52 +1,53 @@
-import React from 'react'
+import React, { createRef } from 'react'
 
 
 class FoodBox extends React.Component {
 
+    myRef = React.createRef()
+
     constructor(props){
         super(props)
         this.state ={
-           amount:1,
+            quantity:0
         }
         
     }
 
-
-    handleAmount=(event)=>{
+    handleQuantity=(event)=>{
         let newCounter = event.currentTarget.value
         this.setState({
-            amount:newCounter
+            quantity:newCounter
         })
     }
 
-
-
     render() {
+
+        const{name, calories, image} = this.props.food
+        
         return (
         
-
                 <div className="box">
                 <article className="media">
                 <div className="media-left">
                 <figure className="image is-64x64">
-                <img src={this.props.food.image} alt='foodImg'/>
+                <img src={image} alt='foodImg'/>
                 </figure>
                 </div>
                 <div className="media-content">
                 <div className="content">
                 <p>
-                <strong>{this.props.food.name}</strong> <br />
-                <small>{this.props.food.calories}</small>
+                <strong>{name}</strong> <br />
+                <small>{calories} cal</small>
                 </p>
                 </div>
                 </div>
                 <div className="media-right">
                 <div className="field has-addons">
                 <div className="control">
-                <input className="input" type="number"  value={this.state.amount} onChange={this.handleAmount}/>
+                <input className="input" type="number" ref={this.myRef} defaultValue ="1"  onChange={this.handleQuantity}/>
                 </div>
                 <div className="control">
-                <button onClick={() => this.props.trigger(this.props.food.name, this.state.amount, this.props.food.calories)}  className="button is-info">
+                <button onClick={() => this.props.onAdd(this.myRef, this.props.id)}  className="button is-info">
                     +
                     
                 </button>
@@ -62,45 +63,3 @@ class FoodBox extends React.Component {
 }
 
 export default FoodBox
-
-
-
-// import React from 'react';
-
-// function FoodBox(props) {
-//     return (
-//         <div>
-//             <div className="box">
-//   <article className="media">
-//     <div className="media-left">
-//       <figure className="image is-64x64">
-//         <img src={props.food.image} alt='foodImg'/>
-//       </figure>
-//     </div>
-//     <div className="media-content">
-//       <div className="content">
-//         <p>
-//           <strong>{props.food.name}</strong> <br />
-//           <small>{props.food.calories}</small>
-//         </p>
-//       </div>
-//     </div>
-//     <div className="media-right">
-//       <div className="field has-addons">
-//         <div className="control">
-//           <input className="input" type="number" value="1" />
-//         </div>
-//         <div className="control">
-//           <button onClick={} className="button is-info">
-//             +
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   </article>
-// </div>
-//         </div>
-//     )
-// }
-
-// export default FoodBox
